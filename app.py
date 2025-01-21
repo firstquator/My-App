@@ -6,6 +6,7 @@ pages = {
     "MENU": [
         st.Page("./navigations/up_and_down.py", title="🎮 UP & DOWN 게임"),
         st.Page("./navigations/lotto.py", title="📰 로또 번호 생성"),
+        st.Page("./navigations/rpg.py", title="🏹 RPG"),
     ]
 }
 
