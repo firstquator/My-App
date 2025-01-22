@@ -5,7 +5,6 @@ import streamlit as st
 class Player:
     # 플레이어 데이터 관리
     PLAYER_IMG_SRC = "https://cdn.pixabay.com/photo/2021/10/19/13/12/squid-game-6723533_1280.png"
-    
 
     def __init__(self, max_hp=100):
         if 'hp' not in st.session_state:
@@ -66,11 +65,17 @@ class Player:
         </div>
         """
 
-    def draw(self):
-        st.markdown(self.PLAYER_HTML, unsafe_allow_html=True)
+    def draw(self, container=None):
+        if container:
+            container.markdown(self.PLAYER_HTML, unsafe_allow_html=True)
+        else:
+            st.markdown(self.PLAYER_HTML, unsafe_allow_html=True)
 
     def down_hp(self, damage):
         st.session_state['hp'] -= damage
+        if st.session_state['hp'] < 0:
+            st.session_state['hp'] = 0
+            
         self.update_html()
 
     def update_html(self):
@@ -136,7 +141,6 @@ st.set_page_config(
     layout='wide'
 )
 
-# 플레이어 객체 불러오기
 player = Player()
 
 # RPG / 포켓몬 게임 전투 스타일
@@ -146,12 +150,12 @@ col1, col2 = st.columns(2)
 # MY 캐릭터
 with col1:
     container = st.container(border=True)
-    test_btn = st.button("HP 소모")
+    test_btn = st.button("HP 감소")
     if test_btn:
-        player.down_hp(damage=random.randint(5, 30))
+        player.down_hp(random.randint(5, 30))  
 
     player.draw()
+    
 
-# 적
 with col2:
     pass
