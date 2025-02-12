@@ -1,4 +1,4 @@
-import random
+import random, time
 import streamlit as st
 
 # 환경 설정 관리
@@ -267,6 +267,34 @@ class Enemy:
         """
 
 
+def get_gacha_html(info):
+    return f"""
+            <div style="
+                height: 500px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                border: 3px solid yellow;
+            ">
+                <img src="{info['img_path']}"
+                style="
+                width: 100px;
+                height: 100px; 
+                ">
+                <p>{info['effect'][0]}</p>
+            </div>
+        """
+
+def item_draw_action(item_list, times=3, sec=0.1):
+    screen = st.empty()
+    for item in item_list*times:
+        screen.markdown(get_gacha_html(item), unsafe_allow_html=True)
+        time.sleep(sec)
+        screen.empty()
+    
+    return screen
+
 # 웹페이지 세팅
 st.set_page_config(
     page_title="RPG",
@@ -290,32 +318,50 @@ with col1:
         player.down_hp(random.randint(5, 30))  
 
     player.draw()
-    
 
 with col2:
     enemy.draw()
 
 # 가챠!
+if "num_draw" not in st.session_state:
+    st.session_state['num_draw'] = 10
+item_list = [
+    {
+        "effect": ["공격", 20],
+        "img_path": 'https://cdn2.iconfinder.com/data/icons/retro-game-items-revamp-border/100/sword_hero_weapon_attack_blade-512.png',
+        "prob": 1
+    },
+    {
+        "effect": ["꽝", 0],
+        "img_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDp3BDp-i-Pyull-FDYT5PkZdOEXEDzywyag&s",
+        "prob": 10
+    }
+]
+
+item_box = []
+for item in item_list:
+    copy = [item] * item['prob']
+    item_box += copy
+
+result = random.choice(item_box)
+
 col3, col4 = st.columns(2)
 
 with col3:
-    item_path = 'https://cdn2.iconfinder.com/data/icons/retro-game-items-revamp-border/100/sword_hero_weapon_attack_blade-512.png'
-    gacha_html = f"""
-        <div style="
-            height: 500px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            border: 3px solid yellow;
-        ">
-            <img src="{item_path}"
-            style="
-               width: 100px;
-               height: 100px; 
-            ">
-            <p>공격 : 20</p>
-        </div>
-    """
+    draw_btn = st.button('뽑기!')
+    st.markdown(f"남은 뽑기 : {st.session_state['num_draw']}")
 
-    st.markdown(gacha_html, unsafe_allow_html=True)
+with col4:
+    if draw_btn and st.session_state['num_draw'] > 0:
+        st.session_state['num_draw'] -= 1
+        
+        screen = item_draw_action(item_list, 10, 0.05)
+
+        gacha_html = get_gacha_html(result)
+        screen.markdown(gacha_html, unsafe_allow_html=True)
+
+    elif st.session_state['num_draw'] <= 0:
+        reset_btn = st.button("뽑기권 충전!")
+
+        if reset_btn:
+            st.session_state['num_draw'] = 10
