@@ -266,7 +266,6 @@ class Enemy:
         </div>
         """
 
-
 def get_gacha_html(info):
     return f"""
             <div style="
@@ -365,3 +364,5 @@ with col4:
 
         if reset_btn:
             st.session_state['num_draw'] = 10
+
+st.write(result)
